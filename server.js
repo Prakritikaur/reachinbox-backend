@@ -1,41 +1,20 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const nodemailer = require('nodemailer');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+
+const suggestReplyRoutes = require("./routes/suggestReply");
+const emailSyncRoutes = require("./routes/emailSync");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Route to send email
-app.post('/send', async (req, res) => {
-  const { to, subject, text } = req.body;
+// Register routes
+app.use("/api/suggest-reply", suggestReplyRoutes);
+app.use("/api/email-sync", emailSyncRoutes);
 
-  try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to,
-      subject,
-      text,
-    });
-
-    res.status(200).json({ message: '✅ Email sent successfully!' });
-  } catch (error) {
-    console.error('❌ Error sending email:', error);
-    res.status(500).json({ error: 'Failed to send email' });
-  }
-});
-
-app.get('/', (req, res) => {
-  res.send('Server is running successfully ✅');
+app.get("/", (req, res) => {
+  res.send("Server is running successfully ✅");
 });
 
 const PORT = process.env.PORT || 5000;
